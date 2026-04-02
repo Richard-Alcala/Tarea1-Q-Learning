@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Grid World — Q-Learning</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1a1a2e;
+      color: #eee;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+      gap: 16px;
+    }
+    h1 { font-size: 1.4rem; color: #a0c4ff; letter-spacing: 1px; }
+
+    #layout {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    canvas {
+      border: 2px solid #444;
+      background: #16213e;
+      border-radius: 6px;
+    }
+
+    #panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 474px;
+      min-width: 474px;
+      max-width: 474px;
+    }
+
+    .telemetry {
+      background: #16213e;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+    .telemetry span { color: #f9ca24; font-weight: bold; }
+
+    .controls { display: flex; gap: 10px; }
+    button {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    button:hover { opacity: .85; }
+    #btn-step    { background: #3498db; color: #fff; }
+    #btn-step:disabled { opacity: 0.3; cursor: default; }
+    #btn-episode { background: #2ecc71; color: #fff; }
+    #btn-clear   { background: #f39c12; color: #fff; }
+    #btn-reset   { background: #e74c3c; color: #fff; }
+
+    #log {
+      background: #000;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 10px;
+      height: 320px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      word-break: break-all;
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      color: #0f0;
+    }
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .nav-controls button {
+      flex: 1;
+      padding: 8px 0;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      cursor: pointer;
+      background: #2c3e50;
+      color: #eee;
+      transition: opacity .15s;
+    }
+    .nav-controls button:disabled { opacity: 0.3; cursor: default; }
+    .nav-controls button:not(:disabled):hover { opacity: .85; }
+    #nav-label {
+      font-size: 0.8rem;
+      color: #f9ca24;
+      white-space: nowrap;
+      text-align: center;
+      min-width: 60px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 16px;
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+    .legend span { display: flex; align-items: center; gap: 6px; }
+    .dot  { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    .sq   { width: 12px; height: 12px; display: inline-block; }
+  </style>
+</head>
+<body>
+  <div style="display:flex; align-items:center; justify-content:center; width:100%; position:relative;">
+    <h1>Grid World — Q-Learning Agent</h1>
+    <p style="font-size:0.8rem; color:#888; position:absolute; right:8px;">Richard Alcala C.</p>
+  </div>
+
+  <div id="layout">
+    <div style="display:flex; gap:10px; align-items:flex-start;">
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <canvas id="training-bar" width="32"></canvas>
+        <span id="training-pct" style="font-size:0.7rem; color:#f9ca24;">0%</span>
+      </div>
+      <div>
+        <canvas id="grid"></canvas>
+        <div class="legend" style="margin-top:8px; justify-content:center;">
+          <span><i class="dot" style="background:#3498db"></i> Agente</span>
+          <span><i class="dot" style="background:#2ecc71"></i> Comida (+1)</span>
+          <span><i class="sq"  style="background:#e74c3c"></i> Trampa (−1)</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel">
+      <div class="telemetry">
+        <div>Recompensa total: <span id="total-reward">0.000</span></div>
+        <div>Estado del paso: <span id="step-status">—</span></div>
+        <div style="color:#888; font-size:.78rem; margin-top:6px;">
+          α=0.1 &nbsp;|&nbsp; γ=0.9 &nbsp;|&nbsp; ε=0.2
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="btn-clear">Clear</button>
+        <button id="btn-step">Paso</button>
+        <button id="btn-episode">Episodio</button>
+        <button id="btn-reset">Reset</button>
+      </div>
+
+      <div id="log"></div>
+      <div class="nav-controls">
+        <button id="btn-prev">&#8592; Anterior</button>
+        <span id="nav-label">—</span>
+        <button id="btn-next">Siguiente &#8594;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- compiled TypeScript bundle -->
+  <script src="dist/bundle.js"></script>
+</body>
+</html>
